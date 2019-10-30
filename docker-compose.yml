@@ -73,7 +73,7 @@ services:
     image: crs4/ome_seadragon-nginx:0.6.15-ome5.4.10
     depends_on:
       - ome_seadragon-web
-      - nginx-proxy
+      # - nginx-proxy
     entrypoint: ['/usr/local/bin/wait-for-it.sh', 'ome_seadragon-web:4080', '--timeout=600', '--strict', '--',
                  '/usr/local/bin/entrypoint.sh']
     networks:
@@ -81,75 +81,94 @@ services:
         aliases:
           - ome_seadragon-nginx
           - ome-seadragon.local
-    environment:
-      - OMEROWEBHOST=ome_seadragon-web
-      - VIRTUAL_HOST=ome-seadragon.local
-
-  ome_seadragon_gw-db:
-    image: postgres:9.6.12-alpine
-    networks:
-      ome_seadragon_env:
-        aliases:
-          - ome_seadragon_gw-db
-    environment:
-      - POSTGRES_DB=ome_seadragon_gw
-      - POSTGRES_USER=ome_seadragon
-      - POSTGRES_PASSWORD=omero
-    volumes:
-      - ome-seadragon-gw-pg-data:/var/lib/postgresql/data
-
-  ome_seadragon_gw-web:
-    image: crs4/ome_seadragon_gw-web:0.1.2
-    depends_on:
-      - ome_seadragon-nginx
-      - redis-server
-      - ome_seadragon_gw-db
-    entrypoint: ['/usr/local/bin/wait-for-it.sh', 'redis-server:6379', '--',
-                 '/usr/local/bin/wait-for-it.sh', 'ome_seadragon_gw-db:5432', '--',
-                 '/usr/local/bin/wait-for-it.sh', 'ome_seadragon-nginx:80', '--timeout=600', '--strict','--',
-                 '/usr/local/bin/entrypoint.sh']
-    networks:
-      ome_seadragon_env:
-        aliases:
-          - ome_seadragon_gw-web
-    environment:
-      - DJANGO_CONFIG_FILE=/opt/django/conf/config.yaml
-    volumes:
-      - ./ome_seadragon_gw_config/:/opt/django/conf/
-
-  ome_seadragon_gw-nginx:
-    image: crs4/ome_seadragon_gw-nginx:0.1.2
-    depends_on:
-      - ome_seadragon_gw-web
-      - nginx-proxy
-    entrypoint: ['/usr/local/bin/wait-for-it.sh', 'ome_seadragon_gw-web:8080', '--timeout=600', '--strict', '--',
-                 '/usr/local/bin/entrypoint.sh']
-    networks:
-      ome_seadragon_env:
-        aliases:
-          - ome_seadragon_gw-nginx
-          - ome-seadragon-gw.local
-    environment:
-      - DJANGO_SERVER=ome_seadragon_gw-web
-      - VIRTUAL_HOST=ome-seadragon-gw.local
-
-  nginx-proxy:
-    image: jwilder/nginx-proxy
-    networks:
-      ome_seadragon_env:
-        aliases:
-          - nginx-proxy
     ports:
       - "80:80"
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+      - OMEROWEBHOST=ome_seadragon-web
+      # - VIRTUAL_HOST=ome-seadragon.local
+
+  # ome_seadragon_gw-db:
+  #   image: postgres:9.6.12-alpine
+  #   networks:
+  #     ome_seadragon_env:
+  #       aliases:
+  #         - ome_seadragon_gw-db
+  #   environment:
+  #     - POSTGRES_DB=ome_seadragon_gw
+  #     - POSTGRES_USER=ome_seadragon
+  #     - POSTGRES_PASSWORD=omero
+  #   volumes:
+  #     - ome-seadragon-gw-pg-data:/var/lib/postgresql/data
+
+  # ome_seadragon_gw-web:
+  #   image: crs4/ome_seadragon_gw-web:0.1.2
+  #   depends_on:
+  #     - ome_seadragon-nginx
+  #     - redis-server
+  #     - ome_seadragon_gw-db
+  #   entrypoint: ['/usr/local/bin/wait-for-it.sh', 'redis-server:6379', '--',
+  #                '/usr/local/bin/wait-for-it.sh', 'ome_seadragon_gw-db:5432', '--',
+  #                '/usr/local/bin/wait-for-it.sh', 'ome_seadragon-nginx:80', '--timeout=600', '--strict','--',
+  #                '/usr/local/bin/entrypoint.sh']
+  #   networks:
+  #     ome_seadragon_env:
+  #       aliases:
+  #         - ome_seadragon_gw-web
+  #   environment:
+  #     - DJANGO_CONFIG_FILE=/opt/django/conf/config.yaml
+  #   volumes:
+  #     - ./ome_seadragon_gw_config/:/opt/django/conf/
+
+  # ome_seadragon_gw-nginx:
+  #   image: crs4/ome_seadragon_gw-nginx:0.1.2
+  #   depends_on:
+  #     - ome_seadragon_gw-web
+  #     - nginx-proxy
+  #   entrypoint: ['/usr/local/bin/wait-for-it.sh', 'ome_seadragon_gw-web:8080', '--timeout=600', '--strict', '--',
+  #                '/usr/local/bin/entrypoint.sh']
+  #   networks:
+  #     ome_seadragon_env:
+  #       aliases:
+  #         - ome_seadragon_gw-nginx
+  #         - ome-seadragon-gw.local
+  #   environment:
+  #     - DJANGO_SERVER=ome_seadragon_gw-web
+  #     - VIRTUAL_HOST=ome-seadragon-gw.local
+
+  # nginx-proxy:
+  #   image: jwilder/nginx-proxy
+  #   networks:
+  #     ome_seadragon_env:
+  #       aliases:
+  #         - nginx-proxy
+  #   ports:
+  #         - "80:80"
+  #   volumes:
+  #     - /var/run/docker.sock:/tmp/docker.sock:ro
+
+# volumes:
+#   ome-pg-data:
+#     external: true
+#   ome-seadragon-gw-pg-data:
+#     external: true
+#   ome-server-var:
+#     external: true
+#   ome-data-dir:
+#     external: true
+#   redis-data:
+#     external: true
+
+# networks:
+#   ome_seadragon_env:
+#      external:
+#          name: ome_seadragon_router
 
 volumes:
-  ome-pg-data: null
-  ome-seadragon-gw-pg-data: null
-  ome-server-var: null
-  ome-data-dir: null
-  redis-data: null
+  ome-pg-data:
+  # ome-seadragon-gw-pg-data:
+  ome-server-var:
+  ome-data-dir:
+  redis-data:
 
 networks:
-  ome_seadragon_env: null
+  ome_seadragon_env:
