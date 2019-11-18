@@ -1,0 +1,4 @@
+#!/bin/bash
+
+docker network rm $(docker network ls -q)
+docker network create ome_seadragon_router

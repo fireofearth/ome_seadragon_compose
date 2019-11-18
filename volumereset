@@ -1,0 +1,8 @@
+#!/bin/bash
+
+docker volume rm $(docker volume ls -q)
+docker volume create ome-pg-data
+docker volume create ome-seadragon-gw-pg-data
+docker volume create ome-server-var
+docker volume create ome-data-dir
+docker volume create redis-data
