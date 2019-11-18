@@ -1,7 +1,6 @@
 version: '3'
 
 services:
-
   omero-db:
     image: postgres:10-alpine
     networks:
@@ -24,7 +23,6 @@ services:
           - redis-server
     volumes:
       - redis-data:/data
-
   omero-server:
     image: openmicroscopy/omero-server:5.5.1-1
     depends_on:
@@ -72,8 +70,7 @@ services:
   ome_seadragon-nginx:
     image: crs4/ome_seadragon-nginx:0.6.15-ome5.5.1
     depends_on:
-      - ome_seadragon-web
-      # - nginx-proxy
+      - ome_seadragon-we
     entrypoint: ['/usr/local/bin/wait-for-it.sh', 'ome_seadragon-web:4080', '--timeout=600', '--strict', '--',
                  '/usr/local/bin/entrypoint.sh']
     networks:
